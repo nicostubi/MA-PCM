@@ -34,6 +34,7 @@ public:
     while(tail == head);
     enableLock();
     T e = elements[head % capacity]; 
+    std::cout << "Dequeued: " << e << std::endl;
     head++;
     disableLock();
     return e;
@@ -43,6 +44,7 @@ public:
     while (tail == head + capacity);
     enableLock(); 
     elements[tail % capacity] = e; 
+    std::cout << "Enqueued: " << e << std::endl;
     tail++;
     disableLock();
   }
@@ -51,7 +53,6 @@ public:
 void producer(Queue<int>& queue) {
     for (int i = 0; i <= queue.capacity; i++) {
         queue.enq(i);
-        std::cout << "Enqueued: " << i << std::endl;
     }
 }
 
@@ -59,7 +60,6 @@ void consumer(Queue<int>& queue) {
     int value;
     for (int i = 0; i <= queue.capacity; ++i) {
         value = queue.deq();
-        std::cout << "Dequeued: " << value << std::endl;
     }
 }
 
