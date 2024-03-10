@@ -9,7 +9,7 @@ template<typename T>
 class Queue {
 private:
   T* elements;
-  int head, tail, capacity;
+  int head, tail;
 
   void enableLock() {
     while (lock.test_and_set(std::memory_order_acquire)) {
@@ -22,9 +22,9 @@ private:
   }
 
 public:
-  Queue(int capacity) : head(0), tail(0), capacity(capacity) {
-    elements = new T[capacity];
-  }
+  int capacity;
+
+  Queue(int capacity) : elements(new T[capacity]), capacity(capacity), head(0), tail(0) {}
 
   ~Queue() {
     delete[] elements;
@@ -49,7 +49,7 @@ public:
 };
 
 void producer(Queue<int>& queue) {
-    for (int i = 0; i <= 1000; i++) {
+    for (int i = 0; i <= queue.capacity; i++) {
         queue.enq(i);
         std::cout << "Enqueued: " << i << std::endl;
     }
@@ -57,16 +57,17 @@ void producer(Queue<int>& queue) {
 
 void consumer(Queue<int>& queue) {
     int value;
-    for (int i = 0; i <= 1000; ++i) {
+    for (int i = 0; i <= queue.capacity; ++i) {
         value = queue.deq();
+        std::cout << "Dequeued: " << value << std::endl;
     }
 }
 
 int main() {
-  Queue<int> queue(1000);
+  Queue<int> queue(10);
 
-  std::thread t1(producer, std::ref(queue));
   std::thread t2(consumer, std::ref(queue));
+  std::thread t1(producer, std::ref(queue));
 
   t1.join();
   t2.join();
